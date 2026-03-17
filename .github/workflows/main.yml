@@ -23,7 +23,10 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
         run: pnpm install
 
       - name: Build
@@ -39,5 +42,5 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy to GitHub Pages
+      - name: Deploy
         uses: actions/deploy-pages@v4
