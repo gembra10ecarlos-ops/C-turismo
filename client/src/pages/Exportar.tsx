@@ -16,6 +16,8 @@ export default function Exportar() {
   const [loading, setLoading] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
 
+  const logoUrl = `${import.meta.env.BASE_URL}logo-cturismo.png`;
+
   if (!isAuthenticated) {
     return (
       <>
@@ -166,7 +168,7 @@ export default function Exportar() {
             {/* Header with Logo */}
             <div className="flex items-center justify-between mb-8 pb-6 border-b border-gray-300">
               <div className="flex items-center gap-4">
-                <img src="/logo-cturismo.png" alt="CTURISMO" className="h-16 w-auto" />
+                <img src={logoUrl} alt="CTURISMO" className="h-16 w-auto" />
                 <div>
                   <h1 className="text-2xl font-bold text-[#0B7D4A]">CTURISMO</h1>
                   <p className="text-gray-600">Sistema de Gerenciamento de Clientes</p>

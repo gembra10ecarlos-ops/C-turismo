@@ -14,12 +14,14 @@ export default function Header() {
     setLocation('/');
   };
 
+  const logoUrl = `${import.meta.env.BASE_URL}logo-cturismo.png`;
+
   return (
     <header className="cturismo-header sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center gap-2 cursor-pointer" onClick={() => setLocation('/')}>
-          <img src="/logo-cturismo.png" alt="CTURISMO" className="h-12 w-auto" />
+          <img src={logoUrl} alt="CTURISMO" className="h-12 w-auto" />
           <span className="text-xl font-bold text-[#0B7D4A] hidden sm:inline">CTURISMO</span>
         </div>
 

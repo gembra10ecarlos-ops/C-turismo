@@ -15,6 +15,8 @@ export default function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const logoUrl = `${import.meta.env.BASE_URL}logo-cturismo.png`;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -40,7 +42,7 @@ export default function Login() {
           <div className="bg-white rounded-2xl shadow-2xl p-8">
             {/* Logo */}
             <div className="flex justify-center mb-8">
-              <img src="/logo-cturismo.png" alt="CTURISMO" className="h-24 w-auto" />
+              <img src={logoUrl} alt="CTURISMO" className="h-24 w-auto" />
             </div>
 
             {/* Title */}

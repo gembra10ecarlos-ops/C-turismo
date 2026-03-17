@@ -8,13 +8,15 @@ export default function Home() {
   const { isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
 
+  const logoUrl = `${import.meta.env.BASE_URL}logo-cturismo.png`;
+
   if (!isAuthenticated) {
     return (
       <>
         <Header />
         <div className="min-h-screen bg-gradient-to-br from-[#0B7D4A] to-[#0E9B8A] flex items-center justify-center px-4">
           <div className="text-center text-white max-w-2xl">
-            <img src="/logo-cturismo.png" alt="CTURISMO" className="h-32 w-auto mx-auto mb-8" />
+            <img src={logoUrl} alt="CTURISMO" className="h-32 w-auto mx-auto mb-8" />
             <h1 className="text-5xl font-bold mb-4">Bem-vindo ao CTURISMO</h1>
             <p className="text-xl mb-8 opacity-90">
               Sistema completo para gerenciamento de clientes e viagens
