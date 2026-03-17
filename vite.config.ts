@@ -134,8 +134,8 @@ const plugins = [
 ];
 
 export default defineConfig({
-  // ✅ ESSENCIAL PRO GITHUB PAGES
-  base: "/C-turismo/",
+  // ✅ ESSENCIAL PRO GITHUB PAGES (Dinamizado para funcionar no Render também)
+  base: process.env.GITHUB_ACTIONS ? "/C-turismo/" : "/",
 
   plugins,
 
