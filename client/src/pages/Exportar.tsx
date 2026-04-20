@@ -4,9 +4,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLocation } from 'wouter';
 import { useState, useRef } from 'react';
 import Header from '@/components/Header';
-import { ArrowLeft, Download, FileText } from 'lucide-react';
+import { ArrowLeft, Download, FileText, File as FileIcon } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { Document, Packer, Paragraph, Table, TableRow, TableCell, WidthType, AlignmentType, TextRun } from 'docx';
+import { saveAs } from 'file-saver';
 
 export default function Exportar() {
   const { clients } = useClients();
@@ -71,6 +73,79 @@ export default function Exportar() {
     } catch (error) {
       console.error('Erro ao gerar PDF:', error);
       alert('Erro ao gerar PDF');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleExportWord = async () => {
+    setLoading(true);
+    try {
+      const title = exportType === 'trip' && tripData ? `Lista de Passageiros - ${tripData.name}` : 'Lista de Clientes';
+      
+      const tableRows = [
+        new TableRow({
+          children: [
+            new TableCell({ children: [new Paragraph({ text: "Nº", bold: true })] }),
+            new TableCell({ children: [new Paragraph({ text: "Nome", bold: true })] }),
+            new TableCell({ children: [new Paragraph({ text: "CPF/CNPJ", bold: true })] }),
+            new TableCell({ children: [new Paragraph({ text: "Cidade", bold: true })] }),
+            new TableCell({ children: [new Paragraph({ text: "Telefone", bold: true })] }),
+          ],
+        }),
+        ...clientsToExport.map((client: any, index: number) => (
+          new TableRow({
+            children: [
+              new TableCell({ children: [new Paragraph({ text: (index + 1).toString() })] }),
+              new TableCell({ children: [new Paragraph({ text: client.name || "" })] }),
+              new TableCell({ children: [new Paragraph({ text: client.cpfCnpj || "" })] }),
+              new TableCell({ children: [new Paragraph({ text: client.city || "" })] }),
+              new TableCell({ children: [new Paragraph({ text: client.phone || "" })] }),
+            ],
+          })
+        ))
+      ];
+
+      const doc = new Document({
+        sections: [{
+          properties: {},
+          children: [
+            new Paragraph({
+              text: "CTURISMO",
+              heading: "Heading1",
+              alignment: AlignmentType.CENTER,
+            }),
+            new Paragraph({
+              text: title,
+              heading: "Heading2",
+              alignment: AlignmentType.CENTER,
+            }),
+            new Paragraph({ text: "" }), // Spacer
+            ...(exportType === 'trip' && tripData ? [
+              new Paragraph({ text: `Data de Ida: ${new Date(tripData.departureDate).toLocaleDateString('pt-BR')}` }),
+              new Paragraph({ text: `Data de Volta: ${new Date(tripData.returnDate).toLocaleDateString('pt-BR')}` }),
+              new Paragraph({ text: `Horário de Saída: ${tripData.departureTime}` }),
+              new Paragraph({ text: "" }), // Spacer
+            ] : []),
+            new Table({
+              width: { size: 100, type: WidthType.PERCENTAGE },
+              rows: tableRows,
+            }),
+            new Paragraph({ text: "" }), // Spacer
+            new Paragraph({
+              text: `Documento gerado em ${new Date().toLocaleString('pt-BR')}`,
+              alignment: AlignmentType.RIGHT,
+            }),
+          ],
+        }],
+      });
+
+      const blob = await Packer.toBlob(doc);
+      const filename = exportType === 'trip' && tripData ? `viagem-${tripData.name}.docx` : 'clientes.docx';
+      saveAs(blob, filename);
+    } catch (error) {
+      console.error('Erro ao gerar Word:', error);
+      alert('Erro ao gerar arquivo Word');
     } finally {
       setLoading(false);
     }
@@ -155,8 +230,13 @@ export default function Exportar() {
                   <div>
                     <p className="font-semibold text-gray-800">Viagem: {tripData.name}</p>
                     <p className="text-sm text-gray-600">
-                      {tripData.passengers.length} passageiro(s) - Saída: {tripData.departureTime}
+                      {tripData.passengers.length} passageiro(s) - Saída: {new Date(tripData.departureDate).toLocaleDateString('pt-BR')} às {tripData.departureTime}
                     </p>
+                    {tripData.returnDate && (
+                      <p className="text-sm text-gray-600">
+                        Volta: {new Date(tripData.returnDate).toLocaleDateString('pt-BR')}
+                      </p>
+                    )}
                   </div>
                 </label>
               )}
@@ -186,22 +266,25 @@ export default function Exportar() {
               </div>
             </div>
 
-            {/* Trip Info */}
+            {/* Trip Specific Info */}
             {exportType === 'trip' && tripData && (
-              <div className="mb-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <h2 className="font-bold text-gray-800 mb-2">Informações da Viagem</h2>
-                <p className="text-gray-700">
-                  <strong>Nome:</strong> {tripData.name}
-                </p>
-                <p className="text-gray-700">
-                  <strong>Horário de Saída:</strong> {tripData.departureTime}
-                </p>
-                <p className="text-gray-700">
-                  <strong>Data:</strong> {tripData.date}
-                </p>
-                <p className="text-gray-700">
-                  <strong>Total de Passageiros:</strong> {tripData.passengers.length}
-                </p>
+              <div className="mb-8 grid grid-cols-1 md:grid-cols-3 gap-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <div>
+                  <p className="text-xs text-gray-500 uppercase font-bold">Viagem</p>
+                  <p className="font-semibold text-gray-800">{tripData.name}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 uppercase font-bold">Data de Ida</p>
+                  <p className="font-semibold text-gray-800">
+                    {new Date(tripData.departureDate).toLocaleDateString('pt-BR')} às {tripData.departureTime}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 uppercase font-bold">Data de Volta</p>
+                  <p className="font-semibold text-gray-800">
+                    {new Date(tripData.returnDate).toLocaleDateString('pt-BR')}
+                  </p>
+                </div>
               </div>
             )}
 
@@ -241,18 +324,26 @@ export default function Exportar() {
           </div>
 
           {/* Export Buttons */}
-          <div className="flex gap-4">
+          <div className="flex flex-wrap gap-4">
             <Button
               onClick={handleExportPDF}
               disabled={loading}
-              className="cturismo-button-primary flex-1 flex items-center justify-center gap-2"
+              className="cturismo-button-primary flex-1 min-w-[150px] flex items-center justify-center gap-2"
             >
               <FileText className="w-4 h-4" />
               {loading ? 'Gerando PDF...' : 'Baixar PDF'}
             </Button>
             <Button
+              onClick={handleExportWord}
+              disabled={loading}
+              className="bg-[#2B579A] hover:bg-[#1E3E6D] text-white flex-1 min-w-[150px] flex items-center justify-center gap-2"
+            >
+              <FileIcon className="w-4 h-4" />
+              {loading ? 'Gerando Word...' : 'Baixar Word'}
+            </Button>
+            <Button
               onClick={handleExportCSV}
-              className="cturismo-button-secondary flex-1 flex items-center justify-center gap-2"
+              className="cturismo-button-secondary flex-1 min-w-[150px] flex items-center justify-center gap-2"
             >
               <Download className="w-4 h-4" />
               Baixar CSV
@@ -260,7 +351,7 @@ export default function Exportar() {
             <Button
               variant="outline"
               onClick={() => setLocation('/')}
-              className="flex-1"
+              className="flex-1 min-w-[150px]"
             >
               Voltar
             </Button>

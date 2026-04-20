@@ -14,6 +14,8 @@ export default function Viagem() {
   const [, setLocation] = useLocation();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [tripName, setTripName] = useState('');
+  const [departureDate, setDepartureDate] = useState(new Date().toISOString().split('T')[0]);
+  const [returnDate, setReturnDate] = useState(new Date().toISOString().split('T')[0]);
   const [departureTime, setDepartureTime] = useState('08:00');
   const [searchTerm, setSearchTerm] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
@@ -67,6 +69,8 @@ export default function Viagem() {
     const selectedClients = clients.filter((c) => selectedIds.has(c.id));
     const tripData = {
       name: tripName || 'Viagem sem nome',
+      departureDate,
+      returnDate,
       departureTime,
       passengers: selectedClients,
       date: new Date().toLocaleDateString('pt-BR'),
@@ -113,8 +117,8 @@ export default function Viagem() {
           {/* Trip Info Card */}
           <div className="cturismo-card p-6 mb-8">
             <h2 className="text-xl font-bold text-gray-800 mb-4">Informações da Viagem</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="md:col-span-2">
                 <label htmlFor="tripName" className="block text-sm font-medium text-gray-700 mb-2">
                   Nome da Viagem
                 </label>
@@ -125,6 +129,31 @@ export default function Viagem() {
                   placeholder="Ex: Viagem para São Paulo"
                 />
               </div>
+              
+              <div>
+                <label htmlFor="departureDate" className="block text-sm font-medium text-gray-700 mb-2">
+                  Data de Ida
+                </label>
+                <Input
+                  id="departureDate"
+                  type="date"
+                  value={departureDate}
+                  onChange={(e) => setDepartureDate(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="returnDate" className="block text-sm font-medium text-gray-700 mb-2">
+                  Data de Volta
+                </label>
+                <Input
+                  id="returnDate"
+                  type="date"
+                  value={returnDate}
+                  onChange={(e) => setReturnDate(e.target.value)}
+                />
+              </div>
+
               <div>
                 <label htmlFor="departureTime" className="block text-sm font-medium text-gray-700 mb-2">
                   Horário de Saída
