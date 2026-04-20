@@ -86,11 +86,11 @@ export default function Exportar() {
       const tableRows = [
         new TableRow({
           children: [
-            new TableCell({ children: [new Paragraph({ text: "Nº", bold: true })] }),
-            new TableCell({ children: [new Paragraph({ text: "Nome", bold: true })] }),
-            new TableCell({ children: [new Paragraph({ text: "CPF/CNPJ", bold: true })] }),
-            new TableCell({ children: [new Paragraph({ text: "Cidade", bold: true })] }),
-            new TableCell({ children: [new Paragraph({ text: "Telefone", bold: true })] }),
+            new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Nº", bold: true })] })] }),
+            new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Nome", bold: true })] })] }),
+            new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "CPF/CNPJ", bold: true })] })] }),
+            new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Cidade", bold: true })] })] }),
+            new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Telefone", bold: true })] })] }),
           ],
         }),
         ...clientsToExport.map((client: any, index: number) => (
