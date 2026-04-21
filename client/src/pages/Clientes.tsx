@@ -99,15 +99,15 @@ export default function Clientes() {
   };
 
   return (
-    <>
+    <div className="min-h-screen bg-gray-50 dark:bg-background">
       <Header />
-      <div className="min-h-screen bg-gray-50 py-12">
+      <div className="py-12">
         <div className="container mx-auto px-4">
           {/* Header */}
           <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <h1 className="text-4xl font-bold text-gray-800 mb-2">Gerenciar Clientes</h1>
-              <p className="text-gray-600">Total: {clients.length} cliente(s) cadastrado(s)</p>
+              <h1 className="text-4xl font-bold text-gray-800 dark:text-foreground mb-2">Gerenciar Clientes</h1>
+              <p className="text-gray-600 dark:text-gray-400">Total: {clients.length} cliente(s) cadastrado(s)</p>
             </div>
             <div className="flex gap-2">
               <Button
@@ -120,7 +120,7 @@ export default function Clientes() {
               <Button
                 variant="outline"
                 onClick={() => setLocation('/')}
-                className="text-[#0B7D4A] border-[#0B7D4A] hover:bg-[#0B7D4A] hover:text-white flex items-center gap-2"
+                className="text-[#0B7D4A] border-[#0B7D4A] hover:bg-[#0B7D4A] hover:text-white dark:border-[#0B7D4A] dark:text-[#0B7D4A] flex items-center gap-2"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Voltar
@@ -137,7 +137,7 @@ export default function Clientes() {
                 placeholder="Buscar por nome, email ou CPF/CNPJ..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-10 dark:bg-card dark:border-border"
               />
             </div>
           </div>
@@ -145,7 +145,7 @@ export default function Clientes() {
           {/* Clients List */}
           {filteredClients.length === 0 ? (
             <div className="cturismo-card p-12 text-center">
-              <p className="text-gray-600 text-lg mb-4">
+              <p className="text-gray-600 dark:text-gray-400 text-lg mb-4">
                 {clients.length === 0 ? 'Nenhum cliente cadastrado' : 'Nenhum cliente encontrado'}
               </p>
               {clients.length === 0 && (
@@ -160,44 +160,66 @@ export default function Clientes() {
                 <div key={client.id} className="cturismo-card p-6">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                     <div>
-                      <p className="text-sm text-gray-600">Nome</p>
-                      <p className="font-semibold text-gray-800">{client.name}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Nome</p>
+                      <p className="font-semibold text-gray-800 dark:text-foreground">{client.name}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-600">Email</p>
-                      <p className="font-semibold text-gray-800">{client.email}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Email</p>
+                      <p className="font-semibold text-gray-800 dark:text-foreground">{client.email}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-600">Telefone</p>
-                      <p className="font-semibold text-gray-800">{client.phone}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Telefone</p>
+                      <p className="font-semibold text-gray-800 dark:text-foreground">{client.phone}</p>
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                     <div>
-                      <p className="text-sm text-gray-600">CPF/CNPJ</p>
-                      <p className="font-semibold text-gray-800">{client.cpfCnpj}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">CPF/CNPJ</p>
+                      <p className="font-semibold text-gray-800 dark:text-foreground">{client.cpfCnpj}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-600">Endereço</p>
-                      <p className="font-semibold text-gray-800">{client.street}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Endereço</p>
+                      <p className="font-semibold text-gray-800 dark:text-foreground">{client.street}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-600">Cidade/Estado</p>
-                      <p className="font-semibold text-gray-800">
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Cidade/Estado</p>
+                      <p className="font-semibold text-gray-800 dark:text-foreground">
                         {client.city} {client.state && `- ${client.state}`}
                       </p>
                     </div>
                   </div>
                   {client.notes && (
                     <div className="mb-4">
-                      <p className="text-sm text-gray-600">Observações</p>
-                      <p className="text-gray-700">{client.notes}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Observações</p>
+                      <p className="text-gray-700 dark:text-gray-300">{client.notes}</p>
                     </div>
                   )}
-                  <div className="flex gap-2 pt-4 border-t border-gray-200">
+                  <div className="flex gap-2 pt-4 border-t border-gray-200 dark:border-border">
                     <Button
                       onClick={() => handleEditClick(client)}
                       variant="outline"
+                      size="sm"
+                      className="flex items-center gap-2 dark:border-border dark:text-foreground"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                      Editar
+                    </Button>
+                    <Button
+                      onClick={() => handleDeleteClick(client.id)}
+                      variant="destructive"
+                      size="sm"
+                      className="flex items-center gap-2"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      Excluir
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
                       size="sm"
                       className="flex items-center gap-2 text-[#0B7D4A] border-[#0B7D4A] hover:bg-[#0B7D4A] hover:text-white"
                     >

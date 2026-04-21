@@ -45,17 +45,17 @@ export default function Home() {
   }
 
   return (
-    <>
+    <div className="min-h-screen bg-gray-50 dark:bg-background">
       <Header />
-      <div className="min-h-screen bg-gray-50 py-12">
+      <main className="py-12">
         <div className="container mx-auto px-4">
           {/* Welcome Section */}
           <div className="mb-12 flex items-center justify-between">
             <div>
-              <h1 className="text-4xl font-bold text-[#0B7D4A] mb-4">
+              <h1 className="text-4xl font-bold text-[#0B7D4A] dark:text-foreground mb-4">
                 Dashboard de Clientes
               </h1>
-              <p className="text-gray-600 text-lg">
+              <p className="text-gray-600 dark:text-gray-400 text-lg">
                 Gerencie seus clientes, importe dados e organize viagens
               </p>
             </div>
@@ -75,8 +75,8 @@ export default function Home() {
               <div className="flex items-center justify-center w-12 h-12 bg-[#0B7D4A] rounded-lg mb-4">
                 <Users className="w-6 h-6 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-2">Cadastrar Cliente</h3>
-              <p className="text-gray-600 mb-4">
+              <h3 className="text-xl font-bold text-gray-800 dark:text-foreground mb-2">Cadastrar Cliente</h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
                 Adicione novos clientes ao sistema com todos os dados necessários
               </p>
               <Button
@@ -92,8 +92,8 @@ export default function Home() {
               <div className="flex items-center justify-center w-12 h-12 bg-[#0E9B8A] rounded-lg mb-4">
                 <FileUp className="w-6 h-6 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-2">Importar Arquivo</h3>
-              <p className="text-gray-600 mb-4">
+              <h3 className="text-xl font-bold text-gray-800 dark:text-foreground mb-2">Importar Arquivo</h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
                 Importe clientes de arquivos CSV ou Excel
               </p>
               <Button
@@ -109,8 +109,8 @@ export default function Home() {
               <div className="flex items-center justify-center w-12 h-12 bg-[#FFC107] rounded-lg mb-4">
                 <Edit3 className="w-6 h-6 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-2">Gerenciar Clientes</h3>
-              <p className="text-gray-600 mb-4">
+              <h3 className="text-xl font-bold text-gray-800 dark:text-foreground mb-2">Gerenciar Clientes</h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
                 Edite, exclua ou visualize clientes cadastrados
               </p>
               <Button
@@ -126,8 +126,8 @@ export default function Home() {
               <div className="flex items-center justify-center w-12 h-12 bg-[#004E89] rounded-lg mb-4">
                 <MapPin className="w-6 h-6 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-2">Selecionar Passageiros</h3>
-              <p className="text-gray-600 mb-4">
+              <h3 className="text-xl font-bold text-gray-800 dark:text-foreground mb-2">Selecionar Passageiros</h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
                 Escolha clientes para uma viagem específica
               </p>
               <Button
@@ -143,8 +143,8 @@ export default function Home() {
               <div className="flex items-center justify-center w-12 h-12 bg-[#FF6B35] rounded-lg mb-4">
                 <Download className="w-6 h-6 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-2">Exportar Lista</h3>
-              <p className="text-gray-600 mb-4">
+              <h3 className="text-xl font-bold text-gray-800 dark:text-foreground mb-2">Exportar Lista</h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
                 Baixe a lista de clientes em PDF com logo e horários
               </p>
               <Button
@@ -160,8 +160,8 @@ export default function Home() {
               <div className="flex items-center justify-center w-12 h-12 bg-[#6B21A8] rounded-lg mb-4">
                 <Trash2 className="w-6 h-6 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-2">Estatísticas</h3>
-              <p className="text-gray-600 mb-4">
+              <h3 className="text-xl font-bold text-gray-800 dark:text-foreground mb-2">Estatísticas</h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
                 Visualize estatísticas e relatórios do sistema
               </p>
               <Button
@@ -174,9 +174,9 @@ export default function Home() {
           </div>
 
           {/* Info Section */}
-          <div className="bg-white rounded-lg shadow-md p-8 border-l-4 border-[#0B7D4A]">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Sobre o Sistema</h2>
-            <p className="text-gray-600 mb-4">
+          <div className="bg-white dark:bg-card rounded-lg shadow-md p-8 border-l-4 border-[#0B7D4A]">
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-foreground mb-4">Sobre o Sistema</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
               O CTURISMO é um sistema completo para gerenciamento de clientes e viagens.
               Com ele você pode:
             </p>
@@ -200,7 +200,7 @@ export default function Home() {
             </ul>
           </div>
         </div>
-      </div>
-    </>
+      </main>
+    </div>
   );
 }

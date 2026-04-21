@@ -1,11 +1,13 @@
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { useLocation } from 'wouter';
-import { LogOut, Menu } from 'lucide-react';
+import { LogOut, Menu, Moon, Sun } from 'lucide-react';
 import { useState } from 'react';
 
 export default function Header() {
   const { isAuthenticated, logout, user } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [, setLocation] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -27,14 +29,24 @@ export default function Header() {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-4">
+          {/* Theme Toggle */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={toggleTheme}
+            className="text-gray-600 dark:text-gray-300"
+          >
+            {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          </Button>
+
           {isAuthenticated ? (
             <>
-              <span className="text-sm text-gray-600">Olá, {user?.email}</span>
+              <span className="text-sm text-gray-600 dark:text-gray-400">Olá, {user?.email}</span>
               <Button
                 onClick={handleLogout}
                 variant="outline"
                 size="sm"
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 dark:border-border dark:text-foreground"
               >
                 <LogOut className="w-4 h-4" />
                 Sair
@@ -52,29 +64,38 @@ export default function Header() {
         </div>
 
         {/* Mobile Menu Button */}
-        <div className="md:hidden">
+        <div className="flex items-center gap-2 md:hidden">
+          {/* Theme Toggle Mobile */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={toggleTheme}
+            className="text-gray-600 dark:text-gray-300"
+          >
+            {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          </Button>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
-            <Menu className="w-5 h-5" />
+            <Menu className="w-5 h-5 dark:text-foreground" />
           </Button>
         </div>
       </div>
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-gray-100 bg-white">
+        <div className="md:hidden border-t border-gray-100 dark:border-border bg-white dark:bg-card">
           <div className="container mx-auto px-4 py-4 flex flex-col gap-3">
             {isAuthenticated ? (
               <>
-                <span className="text-sm text-gray-600">Olá, {user?.email}</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400">Olá, {user?.email}</span>
                 <Button
                   onClick={handleLogout}
                   variant="outline"
                   size="sm"
-                  className="w-full justify-start"
+                  className="w-full justify-start dark:border-border dark:text-foreground"
                 >
                   <LogOut className="w-4 h-4 mr-2" />
                   Sair
