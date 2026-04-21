@@ -38,7 +38,7 @@ let keptBytes = 0;
 
 const targetSize = TRIM_TARGET_BYTES;
 for (let i = lines.length - 1; i >= 0; i--) {
-  const lineBytes = Buffer.byteLength(`${lines[i]}\n`, "utf-8");
+  const lineBytes = Buffer.byteLength(lines[i] + "\n", "utf-8");
   if (keptBytes + lineBytes > targetSize) break;
   keptLines.unshift(lines[i]);
   keptBytes += lineBytes;
@@ -54,14 +54,14 @@ function writeToLogFile(source: LogSource, entries: unknown[]) {
 if (entries.length === 0) return;
 
 ensureLogDir();
-const logPath = path.join(LOG_DIR, `${source}.log`);
+const logPath = path.join(LOG_DIR, source + ".log");
 
 const lines = entries.map((entry) => {
 const ts = new Date().toISOString();
-return `[${ts}] ${JSON.stringify(entry)}`;
+return "[" + ts + "] " + JSON.stringify(entry);
 });
 
-fs.appendFileSync(logPath, `${lines.join("\n")}\n`, "utf-8");
+fs.appendFileSync(logPath, lines.join("\n") + "\n", "utf-8");
 trimLogFile(logPath, MAX_LOG_SIZE_BYTES);
 }
 
@@ -129,7 +129,6 @@ configureServer(server: ViteDevServer) {
 };
 }
 
-// ✅ PLUGINS CORRIGIDOS (sem jsxLocPlugin)
 const plugins = [
 react(),
 tailwindcss(),
