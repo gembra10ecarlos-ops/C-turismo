@@ -220,28 +220,6 @@ export default function Clientes() {
           )}
         </div>
       </div>
-                      size="sm"
-                      className="flex items-center gap-2 text-[#0B7D4A] border-[#0B7D4A] hover:bg-[#0B7D4A] hover:text-white"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                      Editar
-                    </Button>
-                    <Button
-                      onClick={() => handleDeleteClick(client.id)}
-                      variant="outline"
-                      size="sm"
-                      className="flex items-center gap-2 text-red-600 border-red-600 hover:bg-red-600 hover:text-white"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                      Excluir
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
 
       {/* Password Dialog */}
       <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
@@ -377,6 +355,6 @@ export default function Clientes() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 }
