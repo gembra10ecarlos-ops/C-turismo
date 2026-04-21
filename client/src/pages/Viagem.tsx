@@ -17,6 +17,7 @@ export default function Viagem() {
   const [departureDate, setDepartureDate] = useState(new Date().toISOString().split('T')[0]);
   const [returnDate, setReturnDate] = useState(new Date().toISOString().split('T')[0]);
   const [departureTime, setDepartureTime] = useState('08:00');
+  const [returnTime, setReturnTime] = useState('18:00');
   const [searchTerm, setSearchTerm] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -72,6 +73,7 @@ export default function Viagem() {
       departureDate,
       returnDate,
       departureTime,
+      returnTime,
       passengers: selectedClients,
       date: new Date().toLocaleDateString('pt-BR'),
     };
@@ -165,6 +167,21 @@ export default function Viagem() {
                     type="time"
                     value={departureTime}
                     onChange={(e) => setDepartureTime(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="returnTime" className="block text-sm font-medium text-gray-700 mb-2">
+                  Horário de Volta
+                </label>
+                <div className="flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-gray-400" />
+                  <Input
+                    id="returnTime"
+                    type="time"
+                    value={returnTime}
+                    onChange={(e) => setReturnTime(e.target.value)}
                   />
                 </div>
               </div>

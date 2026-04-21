@@ -17,6 +17,7 @@ export default function Cadastro() {
     name: '',
     street: '',
     cpfCnpj: '',
+    rg: '',
     email: '',
     phone: '',
     city: '',
@@ -58,6 +59,7 @@ export default function Cadastro() {
       name: '',
       street: '',
       cpfCnpj: '',
+      rg: '',
       email: '',
       phone: '',
       city: '',
@@ -121,7 +123,7 @@ export default function Cadastro() {
                 </div>
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                    Email *
+                    Email
                   </label>
                   <Input
                     id="email"
@@ -130,13 +132,12 @@ export default function Cadastro() {
                     value={formData.email}
                     onChange={handleChange}
                     placeholder="joao@email.com"
-                    required
                   />
                 </div>
               </div>
 
-              {/* Row 2: CPF/CNPJ and Phone */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Row 2: CPF/CNPJ, RG and Phone */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label htmlFor="cpfCnpj" className="block text-sm font-medium text-gray-700 mb-2">
                     CPF / CNPJ *
@@ -148,6 +149,18 @@ export default function Cadastro() {
                     onChange={handleChange}
                     placeholder="000.000.000-00"
                     required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="rg" className="block text-sm font-medium text-gray-700 mb-2">
+                    RG
+                  </label>
+                  <Input
+                    id="rg"
+                    name="rg"
+                    value={formData.rg}
+                    onChange={handleChange}
+                    placeholder="00.000.000-0"
                   />
                 </div>
                 <div>
@@ -168,7 +181,7 @@ export default function Cadastro() {
               {/* Row 3: Street */}
               <div>
                 <label htmlFor="street" className="block text-sm font-medium text-gray-700 mb-2">
-                  Rua / Endereço *
+                  Rua / Endereço
                 </label>
                 <Input
                   id="street"
@@ -176,7 +189,6 @@ export default function Cadastro() {
                   value={formData.street}
                   onChange={handleChange}
                   placeholder="Rua das Flores, 123"
-                  required
                 />
               </div>
 

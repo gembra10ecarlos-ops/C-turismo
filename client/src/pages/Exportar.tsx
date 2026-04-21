@@ -89,6 +89,7 @@ export default function Exportar() {
             new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Nº", bold: true })] })] }),
             new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Nome", bold: true })] })] }),
             new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "CPF/CNPJ", bold: true })] })] }),
+            new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "RG", bold: true })] })] }),
             new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Cidade", bold: true })] })] }),
             new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Telefone", bold: true })] })] }),
           ],
@@ -99,6 +100,7 @@ export default function Exportar() {
               new TableCell({ children: [new Paragraph({ text: (index + 1).toString() })] }),
               new TableCell({ children: [new Paragraph({ text: client.name || "" })] }),
               new TableCell({ children: [new Paragraph({ text: client.cpfCnpj || "" })] }),
+              new TableCell({ children: [new Paragraph({ text: client.rg || "-" })] }),
               new TableCell({ children: [new Paragraph({ text: client.city || "" })] }),
               new TableCell({ children: [new Paragraph({ text: client.phone || "" })] }),
             ],
@@ -122,9 +124,8 @@ export default function Exportar() {
             }),
             new Paragraph({ text: "" }), // Spacer
             ...(exportType === 'trip' && tripData ? [
-              new Paragraph({ text: `Data de Ida: ${new Date(tripData.departureDate).toLocaleDateString('pt-BR')}` }),
-              new Paragraph({ text: `Data de Volta: ${new Date(tripData.returnDate).toLocaleDateString('pt-BR')}` }),
-              new Paragraph({ text: `Horário de Saída: ${tripData.departureTime}` }),
+              new Paragraph({ text: `Data de Ida: ${new Date(tripData.departureDate).toLocaleDateString('pt-BR')} às ${tripData.departureTime}` }),
+              new Paragraph({ text: `Data de Volta: ${new Date(tripData.returnDate).toLocaleDateString('pt-BR')} às ${tripData.returnTime}` }),
               new Paragraph({ text: "" }), // Spacer
             ] : []),
             new Table({
@@ -232,11 +233,9 @@ export default function Exportar() {
                     <p className="text-sm text-gray-600">
                       {tripData.passengers.length} passageiro(s) - Saída: {new Date(tripData.departureDate).toLocaleDateString('pt-BR')} às {tripData.departureTime}
                     </p>
-                    {tripData.returnDate && (
-                      <p className="text-sm text-gray-600">
-                        Volta: {new Date(tripData.returnDate).toLocaleDateString('pt-BR')}
-                      </p>
-                    )}
+                    <p className="text-sm text-gray-600">
+                      Retorno: {new Date(tripData.returnDate).toLocaleDateString('pt-BR')} às {tripData.returnTime}
+                    </p>
                   </div>
                 </label>
               )}
@@ -259,9 +258,14 @@ export default function Exportar() {
                   Data: {new Date().toLocaleDateString('pt-BR')}
                 </p>
                 {exportType === 'trip' && tripData && (
-                  <p className="text-sm text-gray-600">
-                    Saída: {tripData.departureTime}
-                  </p>
+                  <>
+                    <p className="text-sm text-gray-600">
+                      Saída: {tripData.departureTime}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      Retorno: {tripData.returnTime}
+                    </p>
+                  </>
                 )}
               </div>
             </div>
@@ -282,7 +286,7 @@ export default function Exportar() {
                 <div>
                   <p className="text-xs text-gray-500 uppercase font-bold">Data de Volta</p>
                   <p className="font-semibold text-gray-800">
-                    {new Date(tripData.returnDate).toLocaleDateString('pt-BR')}
+                    {new Date(tripData.returnDate).toLocaleDateString('pt-BR')} às {tripData.returnTime}
                   </p>
                 </div>
               </div>
@@ -298,6 +302,7 @@ export default function Exportar() {
                     <th className="text-left py-3 px-4 font-semibold">Email</th>
                     <th className="text-left py-3 px-4 font-semibold">Telefone</th>
                     <th className="text-left py-3 px-4 font-semibold">CPF/CNPJ</th>
+                    <th className="text-left py-3 px-4 font-semibold">RG</th>
                     <th className="text-left py-3 px-4 font-semibold">Cidade</th>
                   </tr>
                 </thead>
@@ -309,6 +314,7 @@ export default function Exportar() {
                       <td className="py-3 px-4 text-gray-700">{client.email}</td>
                       <td className="py-3 px-4 text-gray-700">{client.phone}</td>
                       <td className="py-3 px-4 text-gray-700">{client.cpfCnpj}</td>
+                      <td className="py-3 px-4 text-gray-700">{client.rg || "-"}</td>
                       <td className="py-3 px-4 text-gray-700">{client.city}</td>
                     </tr>
                   ))}
