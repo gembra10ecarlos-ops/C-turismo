@@ -218,7 +218,6 @@ export default function Clientes() {
             </div>
           )}
         </div>
-      </div>
 
       {/* Password Dialog */}
       <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
