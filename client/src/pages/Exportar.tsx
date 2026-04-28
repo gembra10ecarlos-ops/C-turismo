@@ -295,90 +295,109 @@ export default function Exportar() {
             </div>
           </div>
 
-          {/* Preview */}
-          <div className="cturismo-card p-8 mb-8" ref={contentRef}>
-            {/* Header with Logo */}
-            <div className="flex items-center justify-between mb-8 pb-6 border-b border-gray-300">
-              <div className="flex items-center gap-4">
-                <img src={logoUrl} alt="CTURISMO" className="h-16 w-auto" />
-                <div>
-                  <h1 className="text-2xl font-bold text-[#0B7D4A]">CTURISMO</h1>
-                  <p className="text-gray-600">Sistema de Gerenciamento de Clientes</p>
-                </div>
+          {/* Preview - Modelo C&M TURISMO */}
+          <div className="bg-white p-8 mb-8 shadow-lg border border-gray-200 overflow-x-auto" ref={contentRef} style={{ minWidth: '800px' }}>
+            {/* Cabeçalho */}
+            <div className="flex border-2 border-black mb-0">
+              <div className="w-1/4 p-2 border-r-2 border-black flex items-center justify-center">
+                <img src={logoUrl} alt="Logo" className="h-16 w-auto" />
               </div>
-              <div className="text-right">
-                <p className="text-sm text-gray-600">
-                  Data: {new Date().toLocaleDateString('pt-BR')}
-                </p>
-                {exportType === 'trip' && tripData && (
-                  <>
-                    <p className="text-sm text-gray-600">
-                      Saída: {tripData.departureTime}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Retorno: {tripData.returnTime}
-                    </p>
-                  </>
-                )}
+              <div className="w-3/4 p-2 flex flex-col justify-center">
+                <h1 className="text-sm font-bold uppercase">Relação de Passageiros</h1>
+                <h2 className="text-sm font-bold uppercase leading-tight">Para viagens e turismo sob o regime de fretamento</h2>
+                <p className="text-[10px] mt-1">PÁGINA 01</p>
               </div>
             </div>
 
-            {/* Trip Specific Info */}
-            {exportType === 'trip' && tripData && (
-              <div className="mb-8 grid grid-cols-1 md:grid-cols-3 gap-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
-                <div>
-                  <p className="text-xs text-gray-500 uppercase font-bold">Viagem</p>
-                  <p className="font-semibold text-gray-800">{tripData.name}</p>
+            {/* Dados da Viagem */}
+            <div className="bg-gray-300 border-x-2 border-b-2 border-black p-1 text-center font-bold text-xs uppercase">
+              Dados da Viagem
+            </div>
+            
+            <div className="grid grid-cols-4 border-x-2 border-black text-[11px]">
+              <div className="col-span-2 border-r-2 border-b-2 border-black p-1 text-center flex flex-col justify-center min-h-[40px]">
+                <span className="font-bold">{tripData?.vehicle || "RENAULT/MASTER MBUS L3H2"}</span>
+                <span className="font-bold">{tripData?.year || "2019/2020"}</span>
+              </div>
+              <div className="border-r-2 border-b-2 border-black p-1">
+                <p className="font-bold">Placa: {tripData?.plate || "QWI - 9977"}</p>
+              </div>
+              <div className="border-b-2 border-black p-1 flex items-center justify-around">
+                <div className="text-center px-1">
+                  <p className="font-bold border-b border-black mb-1">DATA</p>
+                  <p>{tripData ? new Date(tripData.departureDate).toLocaleDateString('pt-BR') : "11/04/2026"}</p>
                 </div>
-                <div>
-                  <p className="text-xs text-gray-500 uppercase font-bold">Data de Ida</p>
-                  <p className="font-semibold text-gray-800">
-                    {new Date(tripData.departureDate).toLocaleDateString('pt-BR')} às {tripData.departureTime}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 uppercase font-bold">Data de Volta</p>
-                  <p className="font-semibold text-gray-800">
-                    {new Date(tripData.returnDate).toLocaleDateString('pt-BR')} às {tripData.returnTime}
-                  </p>
+                <div className="text-center px-1">
+                  <p className="font-bold border-b border-black mb-1">HORÁRIO</p>
+                  <p>{tripData?.departureTime || "06:30"}</p>
                 </div>
               </div>
-            )}
+            </div>
 
-            {/* Clients Table */}
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="bg-[#0B7D4A] text-white">
-                    <th className="text-left py-3 px-4 font-semibold">#</th>
-                    <th className="text-left py-3 px-4 font-semibold">Nome</th>
-                    <th className="text-left py-3 px-4 font-semibold">Email</th>
-                    <th className="text-left py-3 px-4 font-semibold">Telefone</th>
-                    <th className="text-left py-3 px-4 font-semibold">CPF/CNPJ</th>
-                    <th className="text-left py-3 px-4 font-semibold">RG</th>
-                    <th className="text-left py-3 px-4 font-semibold">Cidade</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {clientsToExport.map((client: any, index: number) => (
-                    <tr key={client.id} className="border-b border-gray-200 hover:bg-gray-50">
-                      <td className="py-3 px-4 text-gray-700 font-medium">{index + 1}</td>
-                      <td className="py-3 px-4 text-gray-700 font-medium">{client.name}</td>
-                      <td className="py-3 px-4 text-gray-700">{client.email}</td>
-                      <td className="py-3 px-4 text-gray-700">{client.phone}</td>
-                      <td className="py-3 px-4 text-gray-700">{client.cpfCnpj}</td>
-                      <td className="py-3 px-4 text-gray-700">{client.rg || "-"}</td>
-                      <td className="py-3 px-4 text-gray-700">{client.city}</td>
+            <div className="grid grid-cols-4 border-x-2 border-black text-[11px]">
+              <div className="border-r-2 border-b-2 border-black p-1 font-bold bg-gray-50">CIDADE</div>
+              <div className="border-r-2 border-b-2 border-black p-1 text-center font-bold uppercase">{tripData?.city_origin || "ARACAJU"}</div>
+              <div className="border-r-2 border-b-2 border-black p-1 font-bold bg-gray-50 text-center">SAÍDA</div>
+              <div className="border-b-2 border-black p-1 text-center font-bold">{tripData ? new Date(tripData.departureDate).toLocaleDateString('pt-BR') : "11/04/2026"}</div>
+            </div>
+
+            <div className="grid grid-cols-4 border-x-2 border-black text-[11px] mb-4">
+              <div className="border-r-2 border-b-2 border-black p-1 font-bold bg-gray-50">DESTINO</div>
+              <div className="border-r-2 border-b-2 border-black p-1 text-center font-bold uppercase">{tripData?.name || "PARAISO DOS TAMBAQUI/SE"}</div>
+              <div className="border-r-2 border-b-2 border-black p-1 font-bold bg-gray-50 text-center">RETORNO</div>
+              <div className="border-b-2 border-black p-1 text-center font-bold">{tripData ? new Date(tripData.returnDate).toLocaleDateString('pt-BR') : "11/04/2026"}</div>
+            </div>
+
+            {/* Tabela de Passageiros */}
+            <table className="w-full border-2 border-black text-[11px] uppercase">
+              <thead>
+                <tr className="bg-white">
+                  <th className="border-r-2 border-b-2 border-black p-1 w-16 text-center leading-tight">POLTRONA<br/>Nº</th>
+                  <th className="border-r-2 border-b-2 border-black p-1 text-center">NOME COMPLETO</th>
+                  <th className="border-r-2 border-b-2 border-black p-1 w-32 text-center">RG/CPF</th>
+                  <th className="border-b-2 border-black p-1 w-32 text-center">Nº CONTATO</th>
+                </tr>
+              </thead>
+              <tbody>
+                {/* Preencher até 16 linhas como no modelo, ou mais se houver mais clientes */}
+                {Array.from({ length: Math.max(16, clientsToExport.length) }).map((_, i) => {
+                  const client = clientsToExport[i];
+                  return (
+                    <tr key={i} className="h-6">
+                      <td className="border-r-2 border-b-2 border-black p-1 text-center font-bold">{i + 1}</td>
+                      <td className="border-r-2 border-b-2 border-black p-1 px-2 font-bold">{client?.name || ""}</td>
+                      <td className="border-r-2 border-b-2 border-black p-1 text-center">{client?.rg || client?.cpfCnpj || ""}</td>
+                      <td className="border-b-2 border-black p-1 text-center">{client?.phone || ""}</td>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  );
+                })}
+              </tbody>
+            </table>
+
+            {/* Agradecimento */}
+            <div className="mt-6 text-center font-bold italic text-xs uppercase">
+              A C&M TURISMO AGRADECE PELA PREFERÊNCIA E DESEJA A TODOS UMA BOA VIAJEM!
             </div>
 
-            {/* Footer */}
-            <div className="mt-8 pt-6 border-t border-gray-300 text-center text-xs text-gray-600">
-              <p>CTURISMO © 2024 - Sistema de Gerenciamento de Clientes</p>
-              <p>Documento gerado em {new Date().toLocaleString('pt-BR')}</p>
+            {/* Assinaturas */}
+            <div className="mt-12 text-center text-xs">
+              <p className="mb-12 uppercase">{tripData?.city_origin || "Aracaju"}, {new Date().toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+              
+              <div className="flex justify-around mt-8">
+                <div className="w-1/3 border-t-2 border-black pt-1">
+                  <p className="italic">Assinatura do Solicitante</p>
+                </div>
+                <div className="w-1/3 border-t-2 border-black pt-1">
+                  <p className="italic">Representante CTurismo</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Rodapé fixo com dados da empresa */}
+            <div className="mt-16 text-center text-[10px] leading-relaxed">
+              <p className="font-bold">CTurismo - CNPJ Nº 31.478.411/0001-10</p>
+              <p>Rua São Carlos Nº 66 Bairro Marivan Aracaju - SE</p>
+              <p>(79) 99940-1907</p>
             </div>
           </div>
 
