@@ -216,13 +216,13 @@ export default function Importar() {
   return (
     <>
       <Header />
-      <div className="min-h-screen bg-gray-50 py-12">
-        <div className="container mx-auto px-4 max-w-3xl">
+      <div className="min-h-screen bg-gray-50 dark:bg-background py-12">
+        <div className="container mx-auto px-4 max-w-4xl">
           {/* Header */}
           <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <h1 className="text-4xl font-bold text-gray-800 mb-2">Importar Clientes</h1>
-              <p className="text-gray-600">Importe clientes de um arquivo CSV, Excel, Word ou PDF</p>
+              <h1 className="text-4xl font-bold text-gray-800 dark:text-foreground mb-2">Importar Clientes</h1>
+              <p className="text-gray-600 dark:text-gray-400">Importe dados de arquivos Word (.docx)</p>
             </div>
             <Button
               variant="outline"

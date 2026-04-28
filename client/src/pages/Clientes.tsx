@@ -24,10 +24,10 @@ export default function Clientes() {
     return (
       <>
         <Header />
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="min-h-screen bg-gray-50 dark:bg-background flex items-center justify-center">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-800 mb-4">Acesso Negado</h1>
-            <p className="text-gray-600 mb-6">Você precisa fazer login para acessar esta página.</p>
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-foreground mb-4">Acesso Negado</h1>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">Você precisa fazer login para acessar esta página.</p>
             <Button onClick={() => setLocation('/login')} className="cturismo-button-primary">
               Fazer Login
             </Button>
@@ -99,16 +99,15 @@ export default function Clientes() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-background">
+    <div className="min-h-screen bg-gray-50 dark:bg-background py-12">
       <Header />
-      <div className="py-12">
-        <div className="container mx-auto px-4">
-          {/* Header */}
-          <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <h1 className="text-4xl font-bold text-gray-800 dark:text-foreground mb-2">Gerenciar Clientes</h1>
-              <p className="text-gray-600 dark:text-gray-400">Total: {clients.length} cliente(s) cadastrado(s)</p>
-            </div>
+      <div className="container mx-auto px-4 max-w-6xl">
+        {/* Header Section */}
+        <div className="mb-12 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          <div>
+            <h1 className="text-4xl font-bold text-[#0B7D4A] dark:text-foreground mb-4">Gerenciar Clientes</h1>
+            <p className="text-gray-600 dark:text-gray-400 text-lg">Visualize, edite ou remova clientes do sistema</p>
+          </div>
             <div className="flex gap-2">
               <Button
                 onClick={() => setLocation('/cadastro')}

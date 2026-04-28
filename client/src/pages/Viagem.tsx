@@ -90,13 +90,13 @@ export default function Viagem() {
   return (
     <>
       <Header />
-      <div className="min-h-screen bg-gray-50 py-12">
+      <div className="min-h-screen bg-gray-50 dark:bg-background py-12">
         <div className="container mx-auto px-4 max-w-4xl">
-          {/* Header */}
-          <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          {/* Header Section */}
+          <div className="mb-12 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div>
-              <h1 className="text-4xl font-bold text-gray-800 mb-2">Selecionar Passageiros</h1>
-              <p className="text-gray-600">Escolha os clientes para a viagem</p>
+              <h1 className="text-4xl font-bold text-[#0B7D4A] dark:text-foreground mb-4">Organizar Viagem</h1>
+              <p className="text-gray-600 dark:text-gray-400 text-lg">Crie uma lista de passageiros para uma viagem específica</p>
             </div>
             <Button
               variant="outline"

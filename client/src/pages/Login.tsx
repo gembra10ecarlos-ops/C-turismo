@@ -36,22 +36,14 @@ export default function Login() {
   return (
     <>
       <Header />
-      <div className="min-h-screen bg-gradient-to-br from-[#0B7D4A] via-[#0E9B8A] to-[#0B7D4A] flex items-center justify-center px-4 py-12">
+      <div className="min-h-screen bg-gray-50 dark:bg-background flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          {/* Card */}
-          <div className="bg-white rounded-2xl shadow-2xl p-8">
-            {/* Logo */}
-            <div className="flex justify-center mb-8">
-              <img src={logoUrl} alt="CTURISMO" className="h-24 w-auto" />
+          <div className="cturismo-card p-8 shadow-2xl">
+            <div className="text-center mb-8">
+              <img src={logoUrl} alt="CTURISMO" className="h-20 w-auto mx-auto mb-4" />
+              <h1 className="text-3xl font-bold text-[#0B7D4A] dark:text-foreground">Acesso ao Sistema</h1>
+              <p className="text-gray-600 dark:text-gray-400 mt-2">Entre com suas credenciais de administrador</p>
             </div>
-
-            {/* Title */}
-            <h1 className="text-3xl font-bold text-center text-gray-800 mb-2">
-              Bem-vindo
-            </h1>
-            <p className="text-center text-gray-600 mb-8">
-              Faça login para acessar o sistema
-            </p>
 
             {/* Error Message */}
             {error && (

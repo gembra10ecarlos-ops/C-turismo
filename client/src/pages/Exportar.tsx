@@ -394,13 +394,13 @@ export default function Exportar() {
   return (
     <>
       <Header />
-      <div className="min-h-screen bg-gray-50 py-12">
+      <div className="min-h-screen bg-gray-50 dark:bg-background py-12">
         <div className="container mx-auto px-4 max-w-4xl">
           {/* Header */}
           <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <h1 className="text-4xl font-bold text-gray-800 mb-2">Exportar Lista</h1>
-              <p className="text-gray-600">Baixe a lista de clientes em PDF ou CSV</p>
+              <h1 className="text-4xl font-bold text-gray-800 dark:text-foreground mb-2">Exportar Lista</h1>
+              <p className="text-gray-600 dark:text-gray-400">Baixe a lista de clientes em PDF ou CSV</p>
             </div>
             <Button
               variant="outline"
