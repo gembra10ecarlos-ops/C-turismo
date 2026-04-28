@@ -117,7 +117,7 @@ export default function Cadastro() {
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    placeholder="João Silva"
+                    placeholder="Ex: João Silva"
                     required
                   />
                 </div>
@@ -131,7 +131,7 @@ export default function Cadastro() {
                     type="email"
                     value={formData.email}
                     onChange={handleChange}
-                    placeholder="joao@email.com"
+                    placeholder="Ex: joao@email.com"
                   />
                 </div>
               </div>
@@ -147,7 +147,7 @@ export default function Cadastro() {
                     name="cpfCnpj"
                     value={formData.cpfCnpj}
                     onChange={handleChange}
-                    placeholder="000.000.000-00"
+                    placeholder="Ex: 000.000.000-00"
                     required
                   />
                 </div>
@@ -160,7 +160,7 @@ export default function Cadastro() {
                     name="rg"
                     value={formData.rg}
                     onChange={handleChange}
-                    placeholder="00.000.000-0"
+                    placeholder="Ex: 00.000.000-0"
                   />
                 </div>
                 <div>
@@ -172,7 +172,7 @@ export default function Cadastro() {
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    placeholder="(11) 98765-4321"
+                    placeholder="Ex: (11) 98765-4321"
                     required
                   />
                 </div>
@@ -188,7 +188,7 @@ export default function Cadastro() {
                   name="street"
                   value={formData.street}
                   onChange={handleChange}
-                  placeholder="Rua das Flores, 123"
+                  placeholder="Ex: Rua das Flores, 123"
                 />
               </div>
 
@@ -203,7 +203,7 @@ export default function Cadastro() {
                     name="city"
                     value={formData.city}
                     onChange={handleChange}
-                    placeholder="São Paulo"
+                    placeholder="Ex: São Paulo"
                   />
                 </div>
                 <div>
@@ -215,7 +215,7 @@ export default function Cadastro() {
                     name="state"
                     value={formData.state}
                     onChange={handleChange}
-                    placeholder="SP"
+                    placeholder="Ex: SP"
                     maxLength={2}
                   />
                 </div>
@@ -228,7 +228,7 @@ export default function Cadastro() {
                     name="zipCode"
                     value={formData.zipCode}
                     onChange={handleChange}
-                    placeholder="01234-567"
+                    placeholder="Ex: 01234-567"
                   />
                 </div>
               </div>
@@ -243,7 +243,7 @@ export default function Cadastro() {
                   name="notes"
                   value={formData.notes}
                   onChange={handleChange}
-                  placeholder="Adicione observações sobre o cliente..."
+                  placeholder="Ex: Adicione observações sobre o cliente..."
                   rows={4}
                 />
               </div>

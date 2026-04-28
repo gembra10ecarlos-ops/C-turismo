@@ -51,17 +51,31 @@ export default function Importar() {
     setLoading(true);
     setMessage(null);
 
-    const mapRowToClient = (row: any) => ({
-      name: row.name || row.Nome || row.nome || '',
-      street: row.street || row.Rua || row.rua || '',
-      cpfCnpj: row.cpfCnpj || row.CPF || row.CNPJ || row.cpf || row.cnpj || '',
-      email: row.email || row.Email || '',
-      phone: row.phone || row.Telefone || row.telefone || '',
-      city: row.city || row.Cidade || row.cidade || '',
-      state: row.state || row.Estado || row.estado || '',
-      zipCode: row.zipCode || row.CEP || row.cep || '',
-      notes: row.notes || row.Observações || row.observacoes || '',
-    });
+    const mapRowToClient = (row: any) => {
+      // Função auxiliar para buscar valor em chaves variadas (case-insensitive e flexível)
+      const getValue = (keys: string[]) => {
+        const foundKey = Object.keys(row).find(k => 
+          keys.some(key => {
+            const normalizedK = k.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            const normalizedKey = key.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            return normalizedK === normalizedKey || normalizedK.includes(normalizedKey);
+          })
+        );
+        return foundKey ? row[foundKey] : '';
+      };
+
+      return {
+        name: getValue(['name', 'Nome', 'Cliente', 'Nome Completo']),
+        street: getValue(['street', 'Rua', 'Endereco', 'Logradouro']),
+        cpfCnpj: getValue(['cpfCnpj', 'CPF', 'CNPJ', 'Documento']),
+        email: getValue(['email', 'Email', 'E-mail']),
+        phone: getValue(['phone', 'Telefone', 'Celular', 'Contato']),
+        city: getValue(['city', 'Cidade', 'Municipio']),
+        state: getValue(['state', 'Estado', 'UF']),
+        zipCode: getValue(['zipCode', 'CEP', 'Codigo Postal']),
+        notes: getValue(['notes', 'Observacoes', 'Notas', 'Obs']),
+      };
+    };
 
     if (selectedFile.name.endsWith('.csv')) {
       Papa.parse(selectedFile, {
@@ -109,28 +123,43 @@ export default function Importar() {
           const result = await mammoth.convertToHtml({ arrayBuffer });
           const html = result.value;
           
-          // Tentar extrair dados de uma tabela no HTML
+          // Tentar extrair dados de todas as tabelas no HTML
           const parser = new DOMParser();
           const doc = parser.parseFromString(html, 'text/html');
-          const table = doc.querySelector('table');
+          const tables = Array.from(doc.querySelectorAll('table'));
           
-          if (table) {
-            const rows = Array.from(table.querySelectorAll('tr'));
-            const headers = Array.from(rows[0].querySelectorAll('td, th')).map(cell => cell.textContent?.trim() || '');
-            const dataRows = rows.slice(1).map(row => {
-              const cells = Array.from(row.querySelectorAll('td'));
-              const rowData: any = {};
-              headers.forEach((header, index) => {
-                if (cells[index]) {
-                  rowData[header] = cells[index].textContent?.trim() || '';
-                }
+          if (tables.length > 0) {
+            let allClients: Omit<Client, 'id' | 'createdAt'>[] = [];
+            
+            tables.forEach(table => {
+              const rows = Array.from(table.querySelectorAll('tr'));
+              if (rows.length < 2) return; // Pular tabelas sem dados
+              
+              const headers = Array.from(rows[0].querySelectorAll('td, th')).map(cell => cell.textContent?.trim() || '');
+              const dataRows = rows.slice(1).map(row => {
+                const cells = Array.from(row.querySelectorAll('td'));
+                const rowData: any = {};
+                headers.forEach((header, index) => {
+                  if (cells[index]) {
+                    rowData[header] = cells[index].textContent?.trim() || '';
+                  }
+                });
+                return rowData;
               });
-              return rowData;
+              
+              const tableClients = dataRows.map(mapRowToClient);
+              allClients = [...allClients, ...tableClients];
             });
             
-            const clients = dataRows.map(mapRowToClient);
-            setPreview(clients);
-            setMessage({ type: 'success', text: `${clients.length} cliente(s) pronto(s) para importar do Word` });
+            // Filtrar clientes que estão completamente vazios
+            const validClients = allClients.filter(c => c.name || c.cpfCnpj || c.email || c.phone);
+            
+            if (validClients.length > 0) {
+              setPreview(validClients);
+              setMessage({ type: 'success', text: `${validClients.length} cliente(s) pronto(s) para importar do Word` });
+            } else {
+              setMessage({ type: 'error', text: 'Nenhum dado válido encontrado nas tabelas do arquivo Word.' });
+            }
           } else {
             setMessage({ type: 'error', text: 'Nenhuma tabela encontrada no arquivo Word. O arquivo deve conter uma tabela com os dados.' });
           }
