@@ -4,11 +4,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLocation } from 'wouter';
 import { useState, useRef } from 'react';
 import Header from '@/components/Header';
-import { ArrowLeft, Download, FileText, File as FileIcon } from 'lucide-react';
+import { ArrowLeft, Download, FileText, File as FileIcon, Upload, X } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { Document, Packer, Paragraph, Table, TableRow, TableCell, WidthType, AlignmentType, TextRun } from 'docx';
 import { saveAs } from 'file-saver';
+import PizZip from 'pizzip';
+import Docxtemplater from 'docxtemplater';
 
 export default function Exportar() {
   const { clients } = useClients();
@@ -16,7 +18,9 @@ export default function Exportar() {
   const [, setLocation] = useLocation();
   const [exportType, setExportType] = useState<'all' | 'trip'>('all');
   const [loading, setLoading] = useState(false);
+  const [templateFile, setTemplateFile] = useState<File | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const logoUrl = `${import.meta.env.BASE_URL}logo-cturismo.png`;
 
@@ -82,71 +86,120 @@ export default function Exportar() {
     setLoading(true);
     try {
       const title = exportType === 'trip' && tripData ? `Lista de Passageiros - ${tripData.name}` : 'Lista de Clientes';
-      
-      const tableRows = [
-        new TableRow({
-          children: [
-            new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Nº", bold: true })] })] }),
-            new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Nome", bold: true })] })] }),
-            new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "CPF/CNPJ", bold: true })] })] }),
-            new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "RG", bold: true })] })] }),
-            new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Cidade", bold: true })] })] }),
-            new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Telefone", bold: true })] })] }),
-          ],
-        }),
-        ...clientsToExport.map((client: any, index: number) => (
+      const filename = exportType === 'trip' && tripData ? `viagem-${tripData.name}.docx` : 'clientes.docx';
+
+      if (templateFile) {
+        // Lógica para usar template personalizado com docxtemplater
+        const reader = new FileReader();
+        
+        const fileContent = await new Promise<ArrayBuffer>((resolve, reject) => {
+          reader.onload = () => resolve(reader.result as ArrayBuffer);
+          reader.onerror = reject;
+          reader.readAsArrayBuffer(templateFile);
+        });
+
+        const zip = new PizZip(fileContent);
+        const doc = new Docxtemplater(zip, {
+          paragraphLoop: true,
+          linebreaks: true,
+        });
+
+        // Preparar os dados para o template
+        // Suporta tags simples e também loops {#clients} ... {/clients}
+        const data = {
+          titulo: title,
+          data_geracao: new Date().toLocaleDateString('pt-BR'),
+          viagem_nome: tripData?.name || '',
+          viagem_saida: tripData ? `${new Date(tripData.departureDate).toLocaleDateString('pt-BR')} às ${tripData.departureTime}` : '',
+          viagem_retorno: tripData ? `${new Date(tripData.returnDate).toLocaleDateString('pt-BR')} às ${tripData.returnTime}` : '',
+          clientes: clientsToExport.map((client: any, index: number) => ({
+            index: index + 1,
+            nome: client.name || '',
+            email: client.email || '',
+            telefone: client.phone || '',
+            cpf: client.cpfCnpj || '',
+            rg: client.rg || '',
+            cidade: client.city || '',
+            estado: client.state || '',
+            cep: client.zipCode || '',
+            rua: client.street || '',
+          }))
+        };
+
+        doc.render(data);
+
+        const out = doc.getZip().generate({
+          type: "blob",
+          mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        });
+
+        saveAs(out, filename);
+      } else {
+        // Lógica padrão original usando docx
+        const tableRows = [
           new TableRow({
             children: [
-              new TableCell({ children: [new Paragraph({ text: (index + 1).toString() })] }),
-              new TableCell({ children: [new Paragraph({ text: client.name || "" })] }),
-              new TableCell({ children: [new Paragraph({ text: client.cpfCnpj || "" })] }),
-              new TableCell({ children: [new Paragraph({ text: client.rg || "-" })] }),
-              new TableCell({ children: [new Paragraph({ text: client.city || "" })] }),
-              new TableCell({ children: [new Paragraph({ text: client.phone || "" })] }),
+              new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Nº", bold: true })] })] }),
+              new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Nome", bold: true })] })] }),
+              new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "CPF/CNPJ", bold: true })] })] }),
+              new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "RG", bold: true })] })] }),
+              new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Cidade", bold: true })] })] }),
+              new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Telefone", bold: true })] })] }),
             ],
-          })
-        ))
-      ];
+          }),
+          ...clientsToExport.map((client: any, index: number) => (
+            new TableRow({
+              children: [
+                new TableCell({ children: [new Paragraph({ text: (index + 1).toString() })] }),
+                new TableCell({ children: [new Paragraph({ text: client.name || "" })] }),
+                new TableCell({ children: [new Paragraph({ text: client.cpfCnpj || "" })] }),
+                new TableCell({ children: [new Paragraph({ text: client.rg || "-" })] }),
+                new TableCell({ children: [new Paragraph({ text: client.city || "" })] }),
+                new TableCell({ children: [new Paragraph({ text: client.phone || "" })] }),
+              ],
+            })
+          ))
+        ];
 
-      const doc = new Document({
-        sections: [{
-          properties: {},
-          children: [
-            new Paragraph({
-              text: "CTURISMO",
-              heading: "Heading1",
-              alignment: AlignmentType.CENTER,
-            }),
-            new Paragraph({
-              text: title,
-              heading: "Heading2",
-              alignment: AlignmentType.CENTER,
-            }),
-            new Paragraph({ text: "" }), // Spacer
-            ...(exportType === 'trip' && tripData ? [
-              new Paragraph({ text: `Data de Ida: ${new Date(tripData.departureDate).toLocaleDateString('pt-BR')} às ${tripData.departureTime}` }),
-              new Paragraph({ text: `Data de Volta: ${new Date(tripData.returnDate).toLocaleDateString('pt-BR')} às ${tripData.returnTime}` }),
+        const doc = new Document({
+          sections: [{
+            properties: {},
+            children: [
+              new Paragraph({
+                text: "CTURISMO",
+                heading: "Heading1",
+                alignment: AlignmentType.CENTER,
+              }),
+              new Paragraph({
+                text: title,
+                heading: "Heading2",
+                alignment: AlignmentType.CENTER,
+              }),
               new Paragraph({ text: "" }), // Spacer
-            ] : []),
-            new Table({
-              width: { size: 100, type: WidthType.PERCENTAGE },
-              rows: tableRows,
-            }),
-            new Paragraph({ text: "" }), // Spacer
-            new Paragraph({
-              text: `Documento gerado em ${new Date().toLocaleString('pt-BR')}`,
-              alignment: AlignmentType.RIGHT,
-            }),
-          ],
-        }],
-      });
+              ...(exportType === 'trip' && tripData ? [
+                new Paragraph({ text: `Data de Ida: ${new Date(tripData.departureDate).toLocaleDateString('pt-BR')} às ${tripData.departureTime}` }),
+                new Paragraph({ text: `Data de Volta: ${new Date(tripData.returnDate).toLocaleDateString('pt-BR')} às ${tripData.returnTime}` }),
+                new Paragraph({ text: "" }), // Spacer
+              ] : []),
+              new Table({
+                width: { size: 100, type: WidthType.PERCENTAGE },
+                rows: tableRows,
+              }),
+              new Paragraph({ text: "" }), // Spacer
+              new Paragraph({
+                text: `Documento gerado em ${new Date().toLocaleString('pt-BR')}`,
+                alignment: AlignmentType.RIGHT,
+              }),
+            ],
+          }],
+        });
 
-      const blob = await Packer.toBlob(doc);
-      const filename = exportType === 'trip' && tripData ? `viagem-${tripData.name}.docx` : 'clientes.docx';
-      saveAs(blob, filename);
+        const blob = await Packer.toBlob(doc);
+        saveAs(blob, filename);
+      }
     } catch (error) {
       console.error('Erro ao gerar Word:', error);
-      alert('Erro ao gerar arquivo Word');
+      alert('Erro ao gerar arquivo Word. Verifique se o modelo está correto.');
     } finally {
       setLoading(false);
     }
@@ -326,6 +379,59 @@ export default function Exportar() {
             <div className="mt-8 pt-6 border-t border-gray-300 text-center text-xs text-gray-600">
               <p>CTURISMO © 2024 - Sistema de Gerenciamento de Clientes</p>
               <p>Documento gerado em {new Date().toLocaleString('pt-BR')}</p>
+            </div>
+          </div>
+
+          {/* Template Selection */}
+          <div className="cturismo-card p-6 mb-8 border-dashed border-2 border-gray-300 bg-gray-50">
+            <h2 className="text-xl font-bold text-gray-800 mb-2 flex items-center gap-2">
+              <FileIcon className="w-5 h-5 text-[#2B579A]" />
+              Modelo de Word Personalizado (Opcional)
+            </h2>
+            <p className="text-sm text-gray-600 mb-4">
+              Suba um arquivo .docx com tags como {"{nome}"}, {"{cpf}"}, {"{telefone}"} para usar como modelo. 
+              Se não subir nada, o sistema usará o modelo padrão de tabela.
+            </p>
+            
+            <div className="flex items-center gap-4">
+              <input
+                type="file"
+                accept=".docx"
+                className="hidden"
+                ref={fileInputRef}
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    setTemplateFile(e.target.files[0]);
+                  }
+                }}
+              />
+              
+              {!templateFile ? (
+                <Button
+                  onClick={() => fileInputRef.current?.click()}
+                  variant="outline"
+                  className="flex items-center gap-2 border-[#2B579A] text-[#2B579A] hover:bg-[#2B579A] hover:text-white"
+                >
+                  <Upload className="w-4 h-4" />
+                  Selecionar Modelo (.docx)
+                </Button>
+              ) : (
+                <div className="flex items-center gap-3 bg-white p-2 px-4 rounded-full border border-[#2B579A] shadow-sm">
+                  <FileIcon className="w-4 h-4 text-[#2B579A]" />
+                  <span className="text-sm font-medium text-gray-700 truncate max-w-[200px]">
+                    {templateFile.name}
+                  </span>
+                  <button
+                    onClick={() => {
+                      setTemplateFile(null);
+                      if (fileInputRef.current) fileInputRef.current.value = '';
+                    }}
+                    className="p-1 hover:bg-red-50 rounded-full text-red-500 transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
