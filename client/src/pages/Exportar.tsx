@@ -7,7 +7,7 @@ import Header from '@/components/Header';
 import { ArrowLeft, Download, FileText, File as FileIcon, Upload, X } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import { Document, Packer, Paragraph, Table, TableRow, TableCell, WidthType, AlignmentType, TextRun } from 'docx';
+import { Document, Packer, Paragraph, Table, TableRow, TableCell, WidthType, AlignmentType, TextRun, BorderStyle, VerticalAlign, ImageRun } from 'docx';
 import { saveAs } from 'file-saver';
 import PizZip from 'pizzip';
 import Docxtemplater from 'docxtemplater';
@@ -135,60 +135,219 @@ export default function Exportar() {
 
         saveAs(out, filename);
       } else {
-        // Lógica padrão original usando docx
-        const tableRows = [
-          new TableRow({
-            children: [
-              new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Nº", bold: true })] })] }),
-              new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Nome", bold: true })] })] }),
-              new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "CPF/CNPJ", bold: true })] })] }),
-              new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "RG", bold: true })] })] }),
-              new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Cidade", bold: true })] })] }),
-              new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Telefone", bold: true })] })] }),
-            ],
-          }),
-          ...clientsToExport.map((client: any, index: number) => (
-            new TableRow({
-              children: [
-                new TableCell({ children: [new Paragraph({ text: (index + 1).toString() })] }),
-                new TableCell({ children: [new Paragraph({ text: client.name || "" })] }),
-                new TableCell({ children: [new Paragraph({ text: client.cpfCnpj || "" })] }),
-                new TableCell({ children: [new Paragraph({ text: client.rg || "-" })] }),
-                new TableCell({ children: [new Paragraph({ text: client.city || "" })] }),
-                new TableCell({ children: [new Paragraph({ text: client.phone || "" })] }),
-              ],
-            })
-          ))
-        ];
+        // Lógica para criar o modelo oficial C&M TURISMO no Word
+        const response = await fetch(logoUrl);
+        const logoBuffer = await response.arrayBuffer();
 
         const doc = new Document({
           sections: [{
-            properties: {},
+            properties: {
+              page: {
+                margin: {
+                  top: 720,
+                  right: 720,
+                  bottom: 720,
+                  left: 720,
+                },
+              },
+            },
             children: [
-              new Paragraph({
-                text: "CTURISMO",
-                heading: "Heading1",
-                alignment: AlignmentType.CENTER,
-              }),
-              new Paragraph({
-                text: title,
-                heading: "Heading2",
-                alignment: AlignmentType.CENTER,
-              }),
-              new Paragraph({ text: "" }), // Spacer
-              ...(exportType === 'trip' && tripData ? [
-                new Paragraph({ text: `Data de Ida: ${new Date(tripData.departureDate).toLocaleDateString('pt-BR')} às ${tripData.departureTime}` }),
-                new Paragraph({ text: `Data de Volta: ${new Date(tripData.returnDate).toLocaleDateString('pt-BR')} às ${tripData.returnTime}` }),
-                new Paragraph({ text: "" }), // Spacer
-              ] : []),
+              // Cabeçalho
               new Table({
                 width: { size: 100, type: WidthType.PERCENTAGE },
-                rows: tableRows,
+                rows: [
+                  new TableRow({
+                    children: [
+                      new TableCell({
+                        width: { size: 25, type: WidthType.PERCENTAGE },
+                        verticalAlign: VerticalAlign.CENTER,
+                        children: [
+                          new Paragraph({
+                            alignment: AlignmentType.CENTER,
+                            children: [
+                              new ImageRun({
+                                data: logoBuffer,
+                                transformation: { width: 80, height: 60 },
+                              }),
+                            ],
+                          }),
+                        ],
+                      }),
+                      new TableCell({
+                        width: { size: 75, type: WidthType.PERCENTAGE },
+                        verticalAlign: VerticalAlign.CENTER,
+                        children: [
+                          new Paragraph({
+                            children: [new TextRun({ text: "RELAÇÃO DE PASSAGEIROS", bold: true, size: 24 })],
+                          }),
+                          new Paragraph({
+                            children: [new TextRun({ text: "PARA VIAGENS E TURISMO SOB O REGIME DE FRETAMENTO", bold: true, size: 20 })],
+                          }),
+                          new Paragraph({
+                            children: [new TextRun({ text: "PÁGINA 01", size: 16 })],
+                          }),
+                        ],
+                      }),
+                    ],
+                  }),
+                ],
               }),
+
+              // Título: Dados da Viagem
+              new Table({
+                width: { size: 100, type: WidthType.PERCENTAGE },
+                rows: [
+                  new TableRow({
+                    children: [
+                      new TableCell({
+                        shading: { fill: "D9D9D9" },
+                        children: [
+                          new Paragraph({
+                            alignment: AlignmentType.CENTER,
+                            children: [new TextRun({ text: "DADOS DA VIAGEM", bold: true, size: 20 })],
+                          }),
+                        ],
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+
+              // Tabela de Informações da Viagem
+              new Table({
+                width: { size: 100, type: WidthType.PERCENTAGE },
+                rows: [
+                  new TableRow({
+                    children: [
+                      new TableCell({
+                        columnSpan: 2,
+                        children: [
+                          new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: tripData?.vehicle || "RENAULT/MASTER MBUS L3H2", bold: true })] }),
+                          new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: tripData?.year || "2019/2020", bold: true })] }),
+                        ],
+                      }),
+                      new TableCell({
+                        children: [new Paragraph({ children: [new TextRun({ text: `Placa: ${tripData?.plate || "QWI - 9977"}`, bold: true })] })],
+                      }),
+                      new TableCell({
+                        children: [
+                          new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "DATA / HORÁRIO", bold: true })] }),
+                          new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: `${tripData ? new Date(tripData.departureDate).toLocaleDateString('pt-BR') : "11/04/2026"} - ${tripData?.departureTime || "06:30"}` })] }),
+                        ],
+                      }),
+                    ],
+                  }),
+                  new TableRow({
+                    children: [
+                      new TableCell({ shading: { fill: "F2F2F2" }, children: [new Paragraph({ children: [new TextRun({ text: "CIDADE", bold: true })] })] }),
+                      new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: tripData?.city_origin || "ARACAJU", bold: true })] })] }),
+                      new TableCell({ shading: { fill: "F2F2F2" }, children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "SAÍDA", bold: true })] })] }),
+                      new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: tripData ? new Date(tripData.departureDate).toLocaleDateString('pt-BR') : "11/04/2026", bold: true })] })] }),
+                    ],
+                  }),
+                  new TableRow({
+                    children: [
+                      new TableCell({ shading: { fill: "F2F2F2" }, children: [new Paragraph({ children: [new TextRun({ text: "DESTINO", bold: true })] })] }),
+                      new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: tripData?.name || "PARAISO DOS TAMBAQUI/SE", bold: true })] })] }),
+                      new TableCell({ shading: { fill: "F2F2F2" }, children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "RETORNO", bold: true })] })] }),
+                      new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: tripData ? new Date(tripData.returnDate).toLocaleDateString('pt-BR') : "11/04/2026", bold: true })] })] }),
+                    ],
+                  }),
+                ],
+              }),
+
               new Paragraph({ text: "" }), // Spacer
+
+              // Tabela de Passageiros
+              new Table({
+                width: { size: 100, type: WidthType.PERCENTAGE },
+                rows: [
+                  new TableRow({
+                    children: [
+                      new TableCell({ width: { size: 10, type: WidthType.PERCENTAGE }, children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "POLTRONA Nº", bold: true, size: 18 })] })] }),
+                      new TableCell({ width: { size: 50, type: WidthType.PERCENTAGE }, children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "NOME COMPLETO", bold: true, size: 18 })] })] }),
+                      new TableCell({ width: { size: 20, type: WidthType.PERCENTAGE }, children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "RG/CPF", bold: true, size: 18 })] })] }),
+                      new TableCell({ width: { size: 20, type: WidthType.PERCENTAGE }, children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "Nº CONTATO", bold: true, size: 18 })] })] }),
+                    ],
+                  }),
+                  ...Array.from({ length: Math.max(16, clientsToExport.length) }).map((_, i) => {
+                    const client = clientsToExport[i];
+                    return new TableRow({
+                      children: [
+                        new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: (i + 1).toString(), bold: true })] })] }),
+                        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: client?.name || "", bold: true })] })] }),
+                        new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: client?.rg || client?.cpfCnpj || "" })] })] }),
+                        new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: client?.phone || "" })] })] }),
+                      ],
+                    });
+                  }),
+                ],
+              }),
+
+              new Paragraph({ text: "" }),
               new Paragraph({
-                text: `Documento gerado em ${new Date().toLocaleString('pt-BR')}`,
-                alignment: AlignmentType.RIGHT,
+                alignment: AlignmentType.CENTER,
+                children: [new TextRun({ text: "A C&M TURISMO AGRADECE PELA PREFERÊNCIA E DESEJA A TODOS UMA BOA VIAJEM!", bold: true, italic: true, size: 20 })],
+              }),
+
+              new Paragraph({ text: "" }),
+              new Paragraph({
+                alignment: AlignmentType.CENTER,
+                children: [new TextRun({ text: `${tripData?.city_origin || "Aracaju"}, ${new Date().toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' })}`, size: 20 })],
+              }),
+
+              new Paragraph({ text: "" }),
+              new Paragraph({ text: "" }),
+
+              // Assinaturas
+              new Table({
+                width: { size: 100, type: WidthType.PERCENTAGE },
+                borders: {
+                  top: { style: BorderStyle.NONE },
+                  bottom: { style: BorderStyle.NONE },
+                  left: { style: BorderStyle.NONE },
+                  right: { style: BorderStyle.NONE },
+                  insideHorizontal: { style: BorderStyle.NONE },
+                  insideVertical: { style: BorderStyle.NONE },
+                },
+                rows: [
+                  new TableRow({
+                    children: [
+                      new TableCell({
+                        children: [
+                          new Paragraph({
+                            alignment: AlignmentType.CENTER,
+                            border: { top: { color: "auto", space: 1, style: BorderStyle.SINGLE, size: 12 } },
+                            children: [new TextRun({ text: "Assinatura do Solicitante", italic: true })],
+                          }),
+                        ],
+                      }),
+                      new TableCell({ children: [new Paragraph({ text: "" })] }), // Spacer
+                      new TableCell({
+                        children: [
+                          new Paragraph({
+                            alignment: AlignmentType.CENTER,
+                            border: { top: { color: "auto", space: 1, style: BorderStyle.SINGLE, size: 12 } },
+                            children: [new TextRun({ text: "Representante CTurismo", italic: true })],
+                          }),
+                        ],
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+
+              new Paragraph({ text: "" }),
+              new Paragraph({ text: "" }),
+
+              // Rodapé
+              new Paragraph({
+                alignment: AlignmentType.CENTER,
+                children: [
+                  new TextRun({ text: "CTurismo - CNPJ Nº 31.478.411/0001-10", bold: true, size: 16 }),
+                  new TextRun({ break: 1, text: "Rua São Carlos Nº 66 Bairro Marivan Aracaju - SE", size: 16 }),
+                  new TextRun({ break: 1, text: "(79) 99940-1907", size: 16 }),
+                ],
               }),
             ],
           }],
