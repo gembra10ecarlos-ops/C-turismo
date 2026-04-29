@@ -65,12 +65,12 @@ export default function Importar() {
       };
 
       return {
-        name: getValue(['name', 'Nome', 'Cliente', 'Nome Completo']),
-        street: getValue(['street', 'Rua', 'Endereco', 'Logradouro']),
-        cpfCnpj: getValue(['cpfCnpj', 'CPF', 'CNPJ', 'Documento']),
+        name: getValue(['name', 'Nome', 'Cliente', 'Nome Completo', 'Passageiro', 'Nome do Passageiro', 'Titular']),
+        street: getValue(['street', 'Rua', 'Endereco', 'Logradouro', 'Avenida', 'Av']),
+        cpfCnpj: getValue(['cpfCnpj', 'CPF', 'CNPJ', 'Documento', 'RG', 'Identidade', 'Doc', 'CPF/CNPJ']),
         email: getValue(['email', 'Email', 'E-mail']),
-        phone: getValue(['phone', 'Telefone', 'Celular', 'Contato']),
-        city: getValue(['city', 'Cidade', 'Municipio']),
+        phone: getValue(['phone', 'Telefone', 'Celular', 'Contato', 'Whatsapp', 'Tel', 'Fone']),
+        city: getValue(['city', 'Cidade', 'Municipio', 'Localidade']),
         state: getValue(['state', 'Estado', 'UF']),
         zipCode: getValue(['zipCode', 'CEP', 'Codigo Postal']),
         notes: getValue(['notes', 'Observacoes', 'Notas', 'Obs']),
@@ -84,8 +84,14 @@ export default function Importar() {
         complete: (results: any) => {
           try {
             const clients = results.data.map(mapRowToClient);
-            setPreview(clients);
-            setMessage({ type: 'success', text: `${clients.length} cliente(s) pronto(s) para importar` });
+            // Filtrar clientes vazios
+            const validClients = clients.filter((c: any) => c.name || c.cpfCnpj || c.email || c.phone);
+            if (validClients.length > 0) {
+              setPreview(validClients);
+              setMessage({ type: 'success', text: `${validClients.length} cliente(s) pronto(s) para importar` });
+            } else {
+              setMessage({ type: 'error', text: 'Nenhum dado válido encontrado no arquivo CSV.' });
+            }
           } catch (error) {
             setMessage({ type: 'error', text: 'Erro ao processar arquivo CSV' });
           }
@@ -107,8 +113,14 @@ export default function Importar() {
           const jsonData = XLSX.utils.sheet_to_json(worksheet);
           
           const clients = jsonData.map(mapRowToClient);
-          setPreview(clients);
-          setMessage({ type: 'success', text: `${clients.length} cliente(s) pronto(s) para importar` });
+          // Filtrar clientes vazios
+          const validClients = clients.filter((c: any) => c.name || c.cpfCnpj || c.email || c.phone);
+          if (validClients.length > 0) {
+            setPreview(validClients);
+            setMessage({ type: 'success', text: `${validClients.length} cliente(s) pronto(s) para importar` });
+          } else {
+            setMessage({ type: 'error', text: 'Nenhum dado válido encontrado no arquivo Excel.' });
+          }
         } catch (error) {
           setMessage({ type: 'error', text: 'Erro ao processar arquivo Excel' });
         }
@@ -123,7 +135,6 @@ export default function Importar() {
           const result = await mammoth.convertToHtml({ arrayBuffer });
           const html = result.value;
           
-          // Tentar extrair dados de todas as tabelas no HTML
           const parser = new DOMParser();
           const doc = parser.parseFromString(html, 'text/html');
           const tables = Array.from(doc.querySelectorAll('table'));
@@ -133,35 +144,83 @@ export default function Importar() {
             
             tables.forEach(table => {
               const rows = Array.from(table.querySelectorAll('tr'));
-              if (rows.length < 2) return; // Pular tabelas sem dados
-              
-              const headers = Array.from(rows[0].querySelectorAll('td, th')).map(cell => cell.textContent?.trim() || '');
-              const dataRows = rows.slice(1).map(row => {
-                const cells = Array.from(row.querySelectorAll('td'));
-                const rowData: any = {};
-                headers.forEach((header, index) => {
-                  if (cells[index]) {
-                    rowData[header] = cells[index].textContent?.trim() || '';
+              if (rows.length < 1) return;
+
+              // 1. Tentar detectar se a tabela é horizontal (cabeçalho na primeira linha)
+              // Procuramos qual linha tem mais "cabeçalhos conhecidos"
+              const commonHeaders = [
+                'nome', 'cliente', 'passageiro', 'cpf', 'cnpj', 'rg', 'identidade', 
+                'telefone', 'celular', 'email', 'contato', 'endereco', 'rua', 'cidade'
+              ];
+
+              let headerRowIndex = -1;
+              let maxHits = 0;
+
+              rows.slice(0, 3).forEach((row, index) => { // Checamos as primeiras 3 linhas
+                const cells = Array.from(row.querySelectorAll('td, th'));
+                let hits = 0;
+                cells.forEach(cell => {
+                  const text = cell.textContent?.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "") || "";
+                  if (commonHeaders.some(h => text.includes(h) || h.includes(text))) {
+                    hits++;
                   }
                 });
-                return rowData;
+                if (hits > maxHits) {
+                  maxHits = hits;
+                  headerRowIndex = index;
+                }
               });
-              
-              const tableClients = dataRows.map(mapRowToClient);
-              allClients = [...allClients, ...tableClients];
+
+              if (headerRowIndex !== -1 && maxHits > 0) {
+                // Tabela Horizontal encontrada
+                const headers = Array.from(rows[headerRowIndex].querySelectorAll('td, th')).map(cell => cell.textContent?.trim() || '');
+                const dataRows = rows.slice(headerRowIndex + 1).map(row => {
+                  const cells = Array.from(row.querySelectorAll('td'));
+                  const rowData: any = {};
+                  headers.forEach((header, index) => {
+                    if (cells[index] && header) {
+                      rowData[header] = cells[index].textContent?.trim() || '';
+                    }
+                  });
+                  return rowData;
+                });
+                
+                const tableClients = dataRows.map(mapRowToClient);
+                allClients = [...allClients, ...tableClients];
+              } else {
+                // 2. Tentar detectar se a tabela é vertical (Chave na Col 1, Valor na Col 2)
+                // Comum em tabelas de "ficha de cliente"
+                const rowData: any = {};
+                let foundAnyKey = false;
+
+                rows.forEach(row => {
+                  const cells = Array.from(row.querySelectorAll('td'));
+                  if (cells.length >= 2) {
+                    const key = cells[0].textContent?.trim() || '';
+                    const value = cells[1].textContent?.trim() || '';
+                    if (key && value) {
+                      rowData[key] = value;
+                      foundAnyKey = true;
+                    }
+                  }
+                });
+
+                if (foundAnyKey) {
+                  allClients.push(mapRowToClient(rowData));
+                }
+              }
             });
             
-            // Filtrar clientes que estão completamente vazios
             const validClients = allClients.filter(c => c.name || c.cpfCnpj || c.email || c.phone);
             
             if (validClients.length > 0) {
               setPreview(validClients);
               setMessage({ type: 'success', text: `${validClients.length} cliente(s) pronto(s) para importar do Word` });
             } else {
-              setMessage({ type: 'error', text: 'Nenhum dado válido encontrado nas tabelas do arquivo Word.' });
+              setMessage({ type: 'error', text: 'Não foi possível identificar dados de clientes nas tabelas do Word. Verifique se a tabela possui cabeçalhos como "Nome", "CPF", "Telefone", etc.' });
             }
           } else {
-            setMessage({ type: 'error', text: 'Nenhuma tabela encontrada no arquivo Word. O arquivo deve conter uma tabela com os dados.' });
+            setMessage({ type: 'error', text: 'Nenhuma tabela encontrada no arquivo Word. O arquivo deve conter os dados em formato de tabela.' });
           }
         } catch (error) {
           setMessage({ type: 'error', text: 'Erro ao processar arquivo Word' });
